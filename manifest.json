@@ -1,0 +1,19 @@
+{
+  "name": "Golden Krown 2",
+  "description": "Good old Lines-like game in a new sauce",
+  "version": "0.1",
+  "manifest_version": 2,
+  "app": {
+    "launch": {
+      "local_path": "krown2.html"
+    }
+  },
+  "icons": {
+    "16": "icon_16.png",
+    "128": "icon_128.png"
+  },
+  "permissions": [
+    "unlimited_storage"
+  ],
+  "content_security_policy": "script-src 'self'; object-src 'self'"
+}
