@@ -717,13 +717,10 @@ function resizeCells() {
 	var width = $(window).width();
 	var height = $(window).height() - $("#panel").height();
 	var baseSize = (width > height) ? height : width;
-	var cellSize = (0.8 * baseSize) / 9;
+	var cellSize = (0.9 * baseSize) / 9;
 	$(".cell").width(cellSize);
 	$(".cell").height(cellSize);
-	//drawKrown(document.getElementById("drawKrown"));
-
-/*	$(".element").css("width", cellSize);
-	$(".element").css("height", cellSize);*/
+	$("#field").css("margin", + (0.05 * baseSize) + "px auto");
 }
 
 $(function() {
