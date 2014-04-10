@@ -100,6 +100,55 @@ body {
 	z-index: 12;
 }
 
+#userbox {
+	position: relative;
+	float: right;
+	width: 200px;
+	z-index: 12;
+	margin: 0 10px;
+}
+
+#userbox #username {
+	position: relative;
+	display: block;
+	height: 32px;
+	width: 100%;
+	text-align: center;
+	line-height: 32px;
+	vertical-align: middle;
+	color: #fff;
+	font-size: 16pt;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Open Sans";
+}
+
+#whitescore {
+	display: inline-block;
+	height: 40px;
+	width: 40px;
+	text-align: center;
+	line-height: 40px;
+	vertical-align: top;
+	color: #fff;
+	font-size: 12pt;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Open Sans";
+}
+
+#colorscore {
+	display: inline-block;
+	height: 60px;
+	width: 120px;
+	line-height: 7px;
+	text-align: right;
+	margin-left: 20px;
+}
+
+.scoreblock {
+	display: inline-block;
+	width: 5px;
+	height: 5px;
+	margin: 1px;
+}
+
 #krowntext {
 	position: relative;
 	display: inline-block;

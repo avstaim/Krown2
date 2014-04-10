@@ -611,6 +611,7 @@ function Game() {
 		reset: function() {
 			for (var color in current_game.colors)
 				if (typeof(color) == "string" && color != "special") this.colors[color] = 0;
+			this.display();
 		},
 		addByMatches: function(matches) {
 			matches.iterate(function(point, flag) {
@@ -649,6 +650,16 @@ function Game() {
 			console.log("--");
 			console.log("white - " + this.white);
 			console.log("----");
+
+			$("#colorscore").html("");
+			for (var color in this.colors)
+				for (var i = 0; i < this.colors[color]; i++) {
+					var block = $("<div/>", {class: "scoreblock"});
+					block.css("background", color);
+					block.appendTo($("#colorscore"));
+				}
+				console.log(color + " - " + this.colors[color]);
+			$("#whitescore").html(this.white);
 		}
 	};
 	this.score.reset();
