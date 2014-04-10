@@ -48,6 +48,11 @@ function Field() {
 					if (this.map[y][x] && !grid[y][x].isFree)
 						result++;
 			return result;
+		},
+		iterate: function(callback) {
+			for (var y in this.map)
+				for (var x in this.map[y]) 
+					callback({x: parseInt(x), y: parseInt(y)}, this.map[y][x]);
 		}
 	};
 
@@ -439,10 +444,17 @@ function Field() {
 	};
 	this.getFreeMap = function() {
 		return getMap(function(x, y) { return grid[y][x].isFree; });
-	}
+	};
 	this.getBusyMap = function() {
 		return getMap(function(x, y) { return !grid[y][x].isFree; });
-	}
+	};
+	this.IterateByGrid = function(callback) {
+		for (var y in grid)
+			for (var x in grid[y]) 
+				callback({x: parseInt(x), y: parseInt(y)}, grid[y][x]);
+	};
+
+	this.isColorSpecial = function(color) { return isColorSpecial(color); };
 	this.drop = function(color) {
 		var freeMap = this.getFreeMap();
 		if (!freeMap.length) return false;
@@ -519,6 +531,7 @@ function Field() {
 	this.kaboom = function(bonus) {
 		var animationTime = 600;
 		var count = matches.countNonFree();
+		game.score.addByMatches(matches);
 		for (var y in matches.map)
 			for (var x in matches.map[y]) 
 				if (matches.map[y][x]) {
@@ -591,6 +604,54 @@ function Game() {
 		}
 		return color;
 	};
+
+	this.score = {
+		white: 0,
+		colors: [],
+		reset: function() {
+			for (var color in current_game.colors)
+				if (typeof(color) == "string" && color != "special") this.colors[color] = 0;
+		},
+		addByMatches: function(matches) {
+			matches.iterate(function(point, flag) {
+				var gridPoint = field.getPoint(point);
+				if (flag && gridPoint.color != undefined) 
+					game.score.add(gridPoint.color, 1, "dont_recount");
+			});
+			this.recount();
+		},
+		add: function(color, quantity, dont_recount) {
+			if (color == current_game.colors.special.universal_matcher) {
+				this.white += quantity;
+				return;
+			}
+			if (field.isColorSpecial(color)) return;
+			this.colors[color] += quantity;
+			if (dont_recount) return;
+			this.recount();
+		},
+		recount: function() {
+			var do_count = function() {
+				for (var color in current_game.score.colors) 
+					if (current_game.score.colors[color] == 0) return false;
+				current_game.score.white++;
+				for (var color in current_game.score.colors)
+					current_game.score.colors[color]--;
+				return true;
+			}
+			var flag = true;
+			do { flag = do_count(); } while (flag);
+			this.display();
+		},
+		display: function() {
+			for (var color in this.colors)
+				console.log(color + " - " + this.colors[color]);
+			console.log("--");
+			console.log("white - " + this.white);
+			console.log("----");
+		}
+	};
+	this.score.reset();
 
 	this.gameOver = function() {
 		$("#field").addClass("gameover");
