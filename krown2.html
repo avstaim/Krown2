@@ -9,24 +9,60 @@
 </head>
 
 <body>
-	<div id="panel">
-		<canvas id="drawKrown" height="100" width="100"></canvas>
-		<div id="krowntext">Golden Krown II</div>
-		<div id="buttonbox">
-			<button id="new-game" class="button button-ok">New Game</button>
-			<button id="new-game" class="button button-cancel">Hall of Fame</button>
-			<button id="new-game" class="button button-yellow">Info</button>
-		</div>
-		<div id="userbox">
-			<div id="username">User</div>
-			<div id="scorebox">
-				<div id="whitescore">0</div>
-				<div id="colorscore"></div>
+	<div id="main">
+		<div id="panel">
+			<canvas id="drawKrown" height="100" width="100"></canvas>
+			<div id="krowntext">Golden Krown II</div>
+			<div id="buttonbox">
+				<button id="button-new-game" class="button button-ok">New Game</button>
+				<button id="button-hall-of-fame" class="button button-cancel">Hall of Fame</button>
+				<button id="button-info" class="button button-yellow">Info</button>
+			</div>
+			<div id="userbox">
+				<div id="username">Anonymous</div>
+				<div id="scorebox">
+					<div id="whitescore">0</div>
+					<div id="colorscore"></div>
+				</div>
 			</div>
 		</div>
-	</div>
-	<div id="main">
+		<div id="king"><span id="king_name">King Nemo</span> <span id="king_score">64</span></div>
+
 		<div id="field"></div>
+	</div>
+	<div id="messagebox" class="center-parent">
+		<div id="messagebox-content" class="centered">
+			<div id="data"></div>
+			<input type="text" />
+			<button id="ok_button" class="button button-ok"></button>
+			<button id="cancel_button" class="button button-cancel"></button>
+		</div>
+	</div>
+
+	<div id="info" style="display: none;">
+		<h2>Info</h2>
+		<h3>Basics</h3>
+		<div>Move elements on the field by selecting an element and pointing a target to move to. Make vertical, horizontal or diagonal lines of 5 or more same color elements to destroy them and make scores. Do not let field be full of elements or you'll loose.</div>
+		<h3>Scores</h3>
+		<div>Each complete line will give you a score elements of that color. To increment your score value you must archive score elements of each of 6 spectrum colors. They will collapse and give you one real score. Archive score value grater, than current King have to earn a Golden Krown and bocome King yourself.</div>
+		<h3>Bonuses</h3>
+		<div>Complete lines with more than 5 elements to get bonuses</div>
+		<h4>Getting</h4>
+		<ul style="text-align: left;">
+			<li>Collapse 6 elements of the same color to get a <b>Universal Matcher</b></li>
+			<li>Collapse 7 elements of the same color to get a <b>Explosive Element</b></li>
+			<li>Collapse 8 elements of the same color to get a <b>Storm Element</b></li>
+			<li>Collapse 9 elements of the same color to get a <b>Black Hole</b></li>
+			<li>Collapse 6 elements of the all 6 colors to get a <b>Spectrum Nova</b></li>
+		</ul>
+		<h4>Using</h4>
+		<ul style="text-align: left;">
+			<li>Use <b>Universal Matcher</b> to match any of possible color to complete a line</li>
+			<li>Use <b>Explosive Element</b> to destroy all elements around it</li>
+			<li>Use <b>Storm Element</b> to randomize all element positions</li>
+			<li>Use <b>Black Hole</b> to destroy everything and everyone</li>
+			<li>Use <b>Spectrum Nova</b> to destroy all elements of selected color</li>
+		</ul>
 	</div>
 </body>
 

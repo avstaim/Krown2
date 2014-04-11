@@ -666,10 +666,15 @@ function Game() {
 
 	this.gameOver = function() {
 		$("#field").addClass("gameover");
-		alert("Game over");
+		window.setTimeout(function() { 
+			message("Your game is over! Start new one?", {
+				ok: {text: "Start", callback: function() { game = new Game(); } },
+				cancel: {text: "Don't start"},
+			}); 
+		}, 1000);
 	};
 	this.cantMove = function() {
-		alert("No way");
+		message("No way");
 	};
 
 	this.endTurn = function() {
@@ -695,6 +700,73 @@ function Game() {
 
 var game = {};
 
+function Messagebox(data, fielddata) {
+	if (fielddata != undefined) {
+		var ok_button = $("#messagebox").find("#ok_button");
+		var cancel_button = $("#messagebox").find("#cancel_button");
+		var input = $("#messagebox").find("input");
+
+		if (fielddata.ok != undefined) {
+			var ok_callback = function() {
+				if ((fielddata.ok.callback) != undefined) fielddata.ok.callback();
+				messagebox.hide();
+			};
+			ok_button.show();
+			ok_button.html(fielddata.ok.text != undefined ? fielddata.ok.text : "Ok");
+			ok_button.unbind("click");
+			ok_button.click(ok_callback);
+		} else {
+			ok_button.hide();
+		}
+		if (fielddata.cancel != undefined) {
+			var cancel_callback = function() {
+				if ((fielddata.cancel.callback) != undefined) fielddata.cancel.callback();
+				messagebox.hide();
+			};
+			cancel_button.show();
+			cancel_button.html(fielddata.cancel.text != undefined ? fielddata.cancel.text : "Cancel");
+			cancel_button.unbind("click");
+			cancel_button.click(cancel_callback);
+		} else {
+			cancel_button.hide();
+		}
+
+		input.val("");
+		if (fielddata.input != undefined) {
+			input.show();
+			if (fielddata.input.value != undefined) input.val(fielddata.input.value);
+		} else {
+			input.hide();
+		}
+
+		$("#messagebox-content").css("width", fielddata.width != undefined ? fielddata.width : "300px");
+		$("#messagebox-content").css("height", fielddata.height != undefined ? fielddata.height : "auto");
+		$("#messagebox-content").css("overflow-y", fielddata.overflow != undefined ? fielddata.overflow : "hidden");
+	}
+
+	this.getValue = function () {
+		return $("#messagebox").find("input").val();
+	};
+
+	$("#messagebox").find("#data").html(data);
+
+	var animationTime = 450;
+
+	this.hide = function() {
+		$("#messagebox").hide(animationTime);
+		$("#main").show(animationTime);
+	};
+
+	$("#main").hide(animationTime);
+	$("#messagebox").show(animationTime);
+}
+
+var messagebox = undefined;
+
+function message(text, fielddata) {
+	if (fielddata == undefined) fielddata = {ok: true};
+	messagebox = new Messagebox(text, fielddata);
+}
 
 function drawKrown(canvas) {
 	var context = canvas.getContext("2d");
@@ -724,10 +796,25 @@ function resizeCells() {
 }
 
 $(function() {
-	$("#new-game").click(start);
+	$("#button-new-game").click(start);
+	$("#button-hall-of-fame").click(hallOfFame);
+	$("#button-info").click(info);
 	drawKrown(document.getElementById("drawKrown"));
-	start(); 
 	$(window).on('resize', resizeCells).trigger('resize');
+	window.setTimeout(start, 50);
 });
 
-function start() { game = new Game(); }
+function start() { 
+	game = new Game(); 
+	message("Say your name: ", { ok: { callback: function() { $("#username").html(messagebox.getValue()); } }, input: { value: $("#username").html() } });
+}
+
+function info() {
+	message($("#info").html(), { ok: true, width: "80%", height: "90%", overflow: "scroll" });
+}
+
+function hallOfFame() {
+
+}
+
+
