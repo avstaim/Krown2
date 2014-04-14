@@ -600,6 +600,7 @@ function HallOfFame(name) {
 	var write = function() { localStorage.HallOfFame = JSON.stringify(fameData); };
 	var getSortedFameData = function() { return fameData.slice(0).sort(function(a, b) { return b.score - a.score; }); }
 	this.setScore = function(score) {
+		if (score <= 0) return;
 		fameElement.score = score;
 		write();
 		this.setKing();
