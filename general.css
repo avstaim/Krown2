@@ -273,6 +273,19 @@ body {
 	  width: 300px;
 }
 
+.infospan {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+}
+
+#universal_matcher_info { background: #fff; }
+#vertical_line_info 	{ background: linear-gradient(to right, transparent 0%, #ffffff 50%, transparent 100%); }
+#horizontal_line_info 	{ background: linear-gradient(to bottom, transparent 0%, #ffffff 50%, transparent 100%); }
+#explosive_info 		{ background: radial-gradient(ellipse at center, rgba(234,66,4,1) 0%, rgba(255,0,4,1) 15%, rgba(143,2,34,1) 30%, transparent 100%); }
+#spectrum_nova_info 	{ background: linear-gradient(135deg, purple 0%, blue 20%, green 40%, yellow 60%, orange 80%, red 100%); }
+#black_hole_info 		{ background: #000; }
+
 @media screen and (max-width: 732px), screen and (max-height: 700px) {
     html {
     	-webkit-text-size-adjust: none;
@@ -347,5 +360,28 @@ body {
 		width: 3px;
 		height: 3px;
 		margin: 1px;
+	}
+
+	#messagebox-content {
+		padding: 3px;
+		border-radius: 8px;
+	}
+
+	#messagebox-content #data {
+		font-size: 10pt;
+		margin: 3px;
+		margin-bottom: 15px;
+	}
+
+	#messagebox-content input {
+		margin-bottom: 15px;
+		padding: 1px;
+		font-size: 8pt;
+	}
+
+	.infospan {
+		display: inline-block;
+		width: 12px;
+		height: 12px;
 	}
 }

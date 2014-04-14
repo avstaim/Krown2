@@ -40,28 +40,25 @@
 	</div>
 
 	<div id="info" style="display: none;">
-		<h2>Info</h2>
+		<h2>Golden Krown v.2.0</h2>
 		<h3>Basics</h3>
 		<div>Move elements on the field by selecting an element and pointing a target to move to. Make vertical, horizontal or diagonal lines of 5 or more same color elements to destroy them and make scores. Do not let field be full of elements or you'll loose.</div>
 		<h3>Scores</h3>
 		<div>Each complete line will give you a score elements of that color. To increment your score value you must archive score elements of each of 6 spectrum colors. They will collapse and give you one real score. Archive score value grater, than current King have to earn a Golden Krown and bocome King yourself.</div>
 		<h3>Bonuses</h3>
 		<div>Complete lines with more than 5 elements to get bonuses</div>
-		<h4>Getting</h4>
 		<ul style="text-align: left;">
-			<li>Collapse 6 elements of the same color to get a <b>Universal Matcher</b></li>
-			<li>Collapse 7 elements of the same color to get a <b>Explosive Element</b></li>
-			<li>Collapse 8 elements of the same color to get a <b>Storm Element</b></li>
-			<li>Collapse 9 elements of the same color to get a <b>Black Hole</b></li>
-			<li>Collapse 6 elements of the all 6 colors to get a <b>Spectrum Nova</b></li>
-		</ul>
-		<h4>Using</h4>
-		<ul style="text-align: left;">
-			<li>Use <b>Universal Matcher</b> to match any of possible color to complete a line</li>
-			<li>Use <b>Explosive Element</b> to destroy all elements around it</li>
-			<li>Use <b>Storm Element</b> to randomize all element positions</li>
-			<li>Use <b>Black Hole</b> to destroy everything and everyone</li>
-			<li>Use <b>Spectrum Nova</b> to destroy all elements of selected color</li>
+			<li>Collapse 6 elements of the same color or all 6 colors to get a <b>Universal Matcher</b>. <span id="universal_matcher_info" class="infospan"></span>  Use it to match any of possible color to complete a line. </li>
+			<li>Collapse 7 elements of the same color to get a <b>Vertical Line Feed</b>, <b>Horizontal Line Feed</b> or <b>Explosive Element</b>.
+			<ul>
+				<li>Use <b>Vertical Line Feed</b> <span id="vertical_line_info" class="infospan"></span> to destroy vertical line of elements.</li>
+				<li>Use <b>Horizontal Line Feed</b> <span id="horizontal_line_info" class="infospan"></span> to destroy horizontal line of elements.</li>
+				<li>Use <b>Explosive Element</b> <span id="explosive_info" class="infospan"></span> to destroy all elements around it.</li>
+			</ul>
+
+			</li>
+			<li>Collapse 8 elements of the same color to get a <b>Spectrum Nova</b>. <span id="spectrum_nova_info" class="infospan"></span> Use it to destroy all elements of selected color.</li>
+			<li>Collapse 9 elements of the same color to get a <b>Black Hole</b>. <span id="black_hole_info" class="infospan"></span> Use it to destroy everything and everyone.</li>
 		</ul>
 	</div>
 </body>

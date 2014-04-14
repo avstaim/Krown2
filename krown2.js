@@ -19,10 +19,6 @@ function Field() {
 
 	var selected = undefined;
 
-	var lastMovementPoint = undefined;
-
-	var rainbowFlag = false;
-
 	var next = [];
 
 	var select = function(point) {
@@ -105,8 +101,6 @@ function Field() {
 
 		var color = field.getPoint(source).color;
 		field.clearPoint(source);
-
-		lastMovementPoint = dest;
 
 		animateRoute(route, color, function() {
 			field.setPoint(dest, color);
@@ -502,7 +496,6 @@ function Field() {
 			if (nmatches >= LINE_LENGTH) mark_matches(point, direction, nmatches);
 			if (verify_rainbow(point, direction)) {
 				mark_matches(point, direction, 6);
-				rainbowFlag = true;
 			}
 		};
 		var count_matches = function(point, direction) {
@@ -551,13 +544,15 @@ function Field() {
 		var animationTime = 600;
 		var count = matches.countNonFree();
 		game.score.addByMatches(matches);
+		var current_point = undefined;
 		for (var y in matches.map)
 			for (var x in matches.map[y]) 
 				if (matches.map[y][x]) {
 					var cell = grid[y][x].cell;
 					cell.css('background', grid[y][x].color);
 					cell.html("");
-					field.clearPoint({x: parseInt(x), y: parseInt(y)});
+					current_point = {x: parseInt(x), y: parseInt(y)};
+					field.clearPoint(current_point);
 					(function(cell) { 
 						cell.animate({ backgroundColor: "white" }, { duration: animationTime, complete: function() {
 							cell.animate({ backgroundColor: "transparent" }, { duration: animationTime, complete: field.update });
@@ -565,18 +560,23 @@ function Field() {
 					})(cell);
 				}
 		if (bonus) {
-			if (lastMovementPoint == undefined) {
+			if (current_point == undefined) {
 				var freeMap = this.getFreeMap();
-				lastMovementPoint = freeMap[getRandomInt(0, freeMap.length - 1)];
+				current_point = freeMap[getRandomInt(0, freeMap.length - 1)];
 			}
-			if (count == 6) field.setPoint(lastMovementPoint, game.colors.special.universal_matcher);
-			if (count == 7) field.setPoint(lastMovementPoint, game.colors.special.explosive);
-			if (count == 8) field.setPoint(lastMovementPoint, game.colors.special.storm);
-			if (count >= 9) field.setPoint(lastMovementPoint, game.colors.special.black_hole);
-			if (rainbowFlag) {
-				field.setPoint(lastMovementPoint, game.colors.special.spectrum_nova);
-				rainbowFlag = false;
+			if (count == 6) field.setPoint(current_point, game.colors.special.universal_matcher);
+			if (count == 7) {
+				var seed = getRandomInt(0, 2);
+				var element;
+				switch (seed) {
+					case 0 : element = game.colors.special.explosive; break;
+					case 1 : element = game.colors.special.line_feed_horizontal; break;
+					case 2 : element = game.colors.special.line_feed_vertical; break;
+				}
+				field.setPoint(current_point, element);
 			}
+			if (count == 8) field.setPoint(current_point, game.colors.special.spectrum_nova);
+			if (count >= 9) field.setPoint(current_point, game.colors.special.black_hole);
 		}
 		resetMatches();
 	};
@@ -651,8 +651,8 @@ function Game() {
 	this.colors.special = {
 		spectrum_nova: "linear-gradient(135deg, purple 0%, blue 20%, green 40%, yellow 60%, orange 80%, red 100%)",
 		universal_matcher: "#fff",
-		explosive: "radial-gradient(ellipse at center, rgba(234,66,4,1) 0%,rgba(143,2,34,1) 44%,rgba(255,0,4,1) 100%)",
-		storm: "linear-gradient(to bottom, rgba(27,62,119,1) 0%,rgba(255,117,119,1) 100%)",
+		explosive: "radial-gradient(ellipse at center, rgba(234,66,4,1) 0%, rgba(255,0,4,1) 15%, rgba(143,2,34,1) 30%, transparent 100%)",
+		storm: "linear-gradient(to bottom, rgba(27,62,119,1) 0%, rgba(255,117,119,1) 100%)",
 		black_hole: "#000",
 		painters: "",
 		line_feed_horizontal: "linear-gradient(to bottom, transparent 0%, #ffffff 50%, transparent 100%)",
@@ -669,8 +669,6 @@ function Game() {
 			case 3: color = current_game.colors.yellow; break;
 			case 4: color = current_game.colors.orange; break;
 			case 5: color = current_game.colors.red; break;
-			//case 5: color = "purple"; break; 
-			//case 5: color = current_game.colors.special.line_feed_horizontal; break;
 		}
 		return color;
 	};
