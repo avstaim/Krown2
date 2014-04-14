@@ -29,11 +29,20 @@ body {
 	height: 50px;
 	opacity: 0.6;
 	cursor: pointer;
+	overflow: hidden;
+	vertical-align: middle;
+	text-align: center;
 }
 .element {
 	width: 94%;
 	height: 94%;
-	margin: 3%;
+	margin: auto;
+}
+.next {
+	width: 15%;
+	height: 15%;
+	margin: auto;
+	opacity: 0.6;
 }
 
 

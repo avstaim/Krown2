@@ -23,6 +23,8 @@ function Field() {
 
 	var rainbowFlag = false;
 
+	var next = [];
+
 	var select = function(point) {
 		grid[point.y][point.x].cell.addClass("pulse");
 		selected = point;
@@ -103,13 +105,11 @@ function Field() {
 
 		var color = field.getPoint(source).color;
 		field.clearPoint(source);
-		field.update();
 
 		lastMovementPoint = dest;
 
 		animateRoute(route, color, function() {
 			field.setPoint(dest, color);
-			field.update();
 			if (color == game.colors.special.explosive) {
 				explosive(dest);
 				return;
@@ -230,7 +230,6 @@ function Field() {
 		
 		field.getPoint(nova).cell.find(".element").fadeOut(animationTime*2, function() { 
 			field.clearPoint(nova);
-			field.update();
 		});
 
 		var novaCell = field.getPoint(nova).cell;
@@ -261,7 +260,7 @@ function Field() {
 					moveToHole(0);
 				} else {
 					field.clearPoint(hole);
-					game.drop(3);
+					game.drop(3, true);
 				}
 				return;
 			}
@@ -280,14 +279,11 @@ function Field() {
 				moveToHole(index + 1);
 				return;
 			}
-
 			
 			field.clearPoint(source);
-			field.update();
 
 			animateRoute(route, color, function() {
 				field.setPoint(hole, game.colors.special.black_hole);
-				field.update();
 				moveToHole(index + 1);
 			}, 60, 24);
 		};
@@ -314,8 +310,6 @@ function Field() {
 					nonFree = remains;
 					remains = [];
 					moveToStorm(0);
-				} else {
-					field.update();
 				}
 				return;
 			}
@@ -337,11 +331,9 @@ function Field() {
 			}
 
 			field.clearPoint(source);
-			field.update();
 
 			animateRoute(route, color, function() {
 				field.setPoint(stormTarget, color);
-				//field.update();
 				free = field.getFreeMap();
 				moveToStorm(index + 1);
 			}, 350, 10);
@@ -413,37 +405,36 @@ function Field() {
 			}
 		}
 	};
-	this.update = function() {
-		for (var y in grid) 
-			for (var x in grid[y]) {
-				var cell = $("#cell" + x + "-" + y);
-				if (grid[y][x].color == undefined) {
-					cell.css('background', 'transparent'); //
-					cell.html("");
-				} else { 
-					//cell.css('background-color', grid[y][x].color);
-					cell.html("<div class='element'></div>");
-					cell.find('.element').css('background', grid[y][x].color);
-				}
-			}
-	};
-	this.clear = function() {
-		this.createGrid();
-		this.update();
-	};
 	this.getPoint = function(point) {
 		return grid[point.y][point.x];
+	};
+	var updatePoint = function(point) {
+		var cell = $("#cell" + point.x + "-" + point.y);
+		var gridElement = grid[point.y][point.x];
+		if (gridElement.color == undefined) {
+			cell.css('background', 'transparent'); //
+			cell.html("");
+			if (gridElement.next) {
+				cell.html("<div class='next'></div>");
+				cell.find('.next').css('background', gridElement.next.color);
+			}
+		} else { 
+			cell.html("<div class='element'></div>");
+			cell.find('.element').css('background', gridElement.color);
+		}
 	};
 	this.setPoint = function(point, color) {
 		grid[point.y][point.x].color = color;
 		grid[point.y][point.x].isFree = false;
+		updatePoint(point);
 	};
 	this.clearPoint = function(point) {
 		grid[point.y][point.x].color = undefined;
 		grid[point.y][point.x].isFree = true;
+		updatePoint(point);
 	};
 	this.getFreeMap = function() {
-		return getMap(function(x, y) { return grid[y][x].isFree; });
+		return getMap(function(x, y) { return grid[y][x].isFree && !grid[y][x].next; });
 	};
 	this.getBusyMap = function() {
 		return getMap(function(x, y) { return !grid[y][x].isFree; });
@@ -455,13 +446,41 @@ function Field() {
 	};
 
 	this.isColorSpecial = function(color) { return isColorSpecial(color); };
-	this.drop = function(color) {
-		var freeMap = this.getFreeMap();
-		if (!freeMap.length) return false;
-		var point = freeMap[getRandomInt(0, freeMap.length - 1)];
 
-		this.setPoint(point, color);
-		this.update();
+	var getRandomPoint = function() {
+		var freeMap = field.getFreeMap();
+		if (!freeMap.length) return undefined;
+		return point = freeMap[getRandomInt(0, freeMap.length - 1)];
+	};
+	this.drop = function(color) {
+		var point = getRandomPoint();
+		if (point == undefined) return false;
+		field.setPoint(point, color);
+		return true;
+	};
+	this.clearNext = function() {
+		for (var i in next) {
+			grid[next[i].point.y][next[i].point.x].next = undefined;
+			updatePoint(next[i].point);
+		}
+		next = [];
+	};
+	this.applyNext = function() {
+		for (var i in next)
+			if (this.getPoint(next[i].point).isFree)
+				this.setPoint(next[i].point, next[i].color);
+		this.clearNext();
+	};
+	this.createNext = function(color) {
+		var point = getRandomPoint();
+		if (point == undefined) return false;
+		var cnext = {
+			point: point,
+			color: color
+		};
+		next.push(cnext);
+		grid[point.y][point.x].next = cnext;
+		updatePoint(point);
 		return true;
 	};
 	this.check = function() {
@@ -570,8 +589,8 @@ function HallOfFame(name) {
 		return;
 	}
 	var fameDataJSON = localStorage.HallOfFame;
-	//if (fameDataJSON == undefined) fameDataJSON = "[{ name: \"Captain Nemo\", score: 32 }, { name: \"Count Monte-Cristo\", score: 16 }, { name: \"Mister X\", score: 8 }]";
-		if (fameDataJSON == undefined) fameDataJSON = JSON.stringify([{ name: "Captain Nemo", score: 32 }, { name: "Count Monte-Cristo", score: 16 }, { name: "Mister X", score: 8 }]);
+	if (fameDataJSON == undefined) 
+		fameDataJSON = JSON.stringify([{ name: "Captain Nemo", score: 32 }, { name: "Count Monte-Cristo", score: 16 }, { name: "Mister X", score: 8 }]);
 
 	var fameData = JSON.parse(fameDataJSON);
 	var createFameElement = function(name, score) { return { name: name, score: score }; };
@@ -728,24 +747,38 @@ function Game() {
 	};
 
 	this.endTurn = function() {
-		var exploded = field.check();
-		if (exploded > 0) field.kaboom(true);
+		if (field.check() > 0) field.kaboom(true);
 		else this.drop(3);
 	};
 
-	this.drop = function(number) {
-		for (var i = 0; i < number; i++) {
-			var color = createColor();
-			if (!field.drop(color)) {
-				this.gameOver();
-				return;
-			}
+	this.drop = function(number, isInitial) {
+		var drop = field.drop;
+		if (isInitial) field.clearNext();
+		else  {
+			field.applyNext();
+			drop = field.createNext;
 		}
-		if (!field.getFreeMap().length) this.gameOver();
+		var doDrop = function() {
+			for (var i = 0; i < number; i++) {
+				var color = createColor();
+				if (!drop(color)) {
+					this.gameOver();
+					return;
+				}
+			}
+			if (!field.getFreeMap().length) this.gameOver();
+		};
+		doDrop();
+		
+		if (isInitial) {
+			drop = field.createNext;
+			doDrop();
+		}
+		else if (field.check() > 0) field.kaboom(true);
 	};
 	$("#field").removeClass("gameover");
 	$(window).trigger('resize');
-	this.drop(5);
+	this.drop(5, true);
 }
 
 var game = {};
