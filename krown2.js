@@ -564,8 +564,58 @@ function Field() {
 	
 };
 
+function HallOfFame(name) {
+	if (typeof(Storage) == "undefined") {
+		message("Your browser do not support Web Storage, Hall Of Fame is not avaliable.");
+		return;
+	}
+	var fameDataJSON = localStorage.HallOfFame;
+	//if (fameDataJSON == undefined) fameDataJSON = "[{ name: \"Captain Nemo\", score: 32 }, { name: \"Count Monte-Cristo\", score: 16 }, { name: \"Mister X\", score: 8 }]";
+		if (fameDataJSON == undefined) fameDataJSON = JSON.stringify([{ name: "Captain Nemo", score: 32 }, { name: "Count Monte-Cristo", score: 16 }, { name: "Mister X", score: 8 }]);
+
+	var fameData = JSON.parse(fameDataJSON);
+	var createFameElement = function(name, score) { return { name: name, score: score }; };
+
+	var fameElement = createFameElement(name, 0);
+	fameData.push(fameElement);
+	var write = function() { localStorage.HallOfFame = JSON.stringify(fameData); };
+	var getSortedFameData = function() { return fameData.slice(0).sort(function(a, b) { return b.score - a.score; }); }
+	this.setScore = function(score) {
+		fameElement.score = score;
+		write();
+		this.setKing();
+	};
+	this.getKingFame = function() {
+		var kingFame = { name: "Unknown", score: 0 };
+		for (var i in fameData) 
+			if (fameData[i].score > kingFame.score) kingFame = fameData[i];
+		return kingFame;
+	};
+	this.getHtml = function() {
+		var sortedFameData = getSortedFameData();
+		
+		var lis = "";
+		for (var i in sortedFameData) {
+			if (i > 15) break;
+			var name = sortedFameData[i].name;
+			if (i == 0) name = "<span style='color: #ffcc00;'>" + name + "</span>"; 
+			lis += "<li>" + name + " - " + sortedFameData[i].score + "</li>";
+		}
+
+		return "<h2>Hall Of Fame</h2> <ol>" + lis + "</ol>";
+	};
+	this.setKing = function() {
+		var king = getSortedFameData()[0];
+		$("#king_name").html(king.name);
+		$("#king_score").html(king.score);
+	};
+	this.setKing();
+}
+var hallOfFame = undefined;
+
 function Game() {
 	var field = new Field();
+	hallOfFame = new HallOfFame($("#username").html());
 	var current_game = this;
 	field.create();
 	field.draw();
@@ -640,8 +690,8 @@ function Game() {
 					current_game.score.colors[color]--;
 				return true;
 			}
-			var flag = true;
-			do { flag = do_count(); } while (flag);
+			do { ; } while (do_count());
+			hallOfFame.setScore(current_game.score.white);
 			this.display();
 		},
 		display: function() {
@@ -797,24 +847,29 @@ function resizeCells() {
 
 $(function() {
 	$("#button-new-game").click(start);
-	$("#button-hall-of-fame").click(hallOfFame);
-	$("#button-info").click(info);
+	$("#button-fame").click(showHallOfFame);
+	$("#button-info").click(showInfo);
 	drawKrown(document.getElementById("drawKrown"));
 	$(window).on('resize', resizeCells).trigger('resize');
 	window.setTimeout(start, 50);
 });
 
 function start() { 
-	game = new Game(); 
-	message("Say your name: ", { ok: { callback: function() { $("#username").html(messagebox.getValue()); } }, input: { value: $("#username").html() } });
+	message("Say your name: ", { 
+		ok: { callback: function() {
+		 $("#username").html(messagebox.getValue());
+		 game = new Game();
+		}}, 
+		input: { value: $("#username").html() } 
+	});
 }
 
-function info() {
+function showInfo() {
 	message($("#info").html(), { ok: true, width: "80%", height: "90%", overflow: "scroll" });
 }
 
-function hallOfFame() {
-
+function showHallOfFame() {
+	message(hallOfFame.getHtml());
 }
 
 
