@@ -242,7 +242,7 @@ function Field() {
 		field.kaboom(false);
 	};
 
-	var blackHole = function(hole) {
+	var blackHole_old = function(hole) {
 		var nonFree = field.getBusyMap();
 		var remains = [];
 
@@ -284,6 +284,84 @@ function Field() {
 
 		moveToHole(0);
 	};
+
+	var blackHole = function(hole) {
+		var getRoundArea = function(d) {
+			var res = [];
+			for (var y in grid)
+				for (var x in grid[y]) {
+					var _x = parseInt(x);
+					var _y = parseInt(y);
+					if ((!grid[y][x].isFree) && (Math.abs(_x - hole.x) <= d && Math.abs(_y - hole.y) <= d)) 
+						res.push({ x: _x, y: _y });
+				}
+			return res;
+		};
+		var animationStep = function(step) {
+			var roundArea = getRoundArea(step);
+			if (roundArea.length > 0) {
+				for (var i in roundArea) {
+					var current_cell = field.getPoint(roundArea[i]).cell;
+					current_cell.css('background', current_cell.color);
+					current_cell.html("");
+					field.clearPoint(roundArea[i]);
+					(function(cell) { 
+						cell.animate({ backgroundColor: "black" }, { duration: animationTime, complete: function() {
+							cell.animate({ backgroundColor: "transparent" }, { duration: animationTime, complete: field.update });
+						}});
+					})(current_cell);
+				}
+			}
+			if (step >= 9) {
+				field.clearPoint(hole);
+				game.drop(3, true);
+			} else {
+				window.setTimeout(function() { animationStep(step + 1); }, 500);
+			}
+		};
+		animationStep(0);
+	};
+
+/*	var blackHole = function(hole) {
+		if ((hole.x != 0 && hole.x != 8) || (hole.x != 0 && hole.x != 8)) 
+			return blackHole_old(hole);
+
+		var getPoints = function() {
+			var points = [];
+			for (var y in grid)
+				for (var x in grid[y])
+					if (!grid[y][x].isFree) points.push({x: parseInt(x), y: parseInt(y)});
+			return points;
+		};
+
+		var moveToHole = function(step) {
+			if (step >= 9) {
+				field.clearPoint(hole);
+				game.drop(3, true);
+				return;
+			}
+			var points = getPoints();
+			for (var i in points) {
+				var point = points[i];
+				var color = field.getPoint(point).color;
+				var route = [];
+				route.push(point);
+				point_new = {x: point.x, y: point.y};
+				if (point.x < hole.x) point_new.x++;
+				if (point.x > hole.x) point_new.x--;
+				if (point.y < hole.y) point_new.y++;
+				if (point.y > hole.y) point_new.y--;
+				route.push(point_new);
+				animateRoute(route, color, function() {
+					field.clearPoint(point);
+					field.setPoint(point_new, color);
+					field.setPoint(hole, game.colors.special.black_hole);
+				});
+			}
+			window.setTimeout(function() { moveToHole(step+1); }, 1000);		
+		};
+		moveToHole(0);
+	}*/
 
 	var storm = function(storm) {
 		var stormCell = field.getPoint(storm).cell;
@@ -883,7 +961,7 @@ $(function() {
 	$("#button-info").click(showInfo);
 	drawKrown(document.getElementById("drawKrown"));
 	$(window).on('resize', resizeCells).trigger('resize');
-	window.setTimeout(start, 50);
+	window.setTimeout(start, 500);
 });
 
 function start() { 
