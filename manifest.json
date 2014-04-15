@@ -1,7 +1,7 @@
 {
   "name": "Golden Krown 2",
   "description": "Good old Lines-like game in a new sauce",
-  "version": "0.1",
+  "version": "0.2",
   "manifest_version": 2,
   "app": {
     "launch": {
