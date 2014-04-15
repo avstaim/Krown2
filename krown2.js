@@ -55,6 +55,8 @@ function Field() {
 	};
 
 	var elementClicked = function(cellElement) {
+		if (game.isGameOver) return;
+
 		var clicked = { x: parseInt(cellElement.data("x")), 
 						y: parseInt(cellElement.data("y")) };
 
@@ -242,7 +244,7 @@ function Field() {
 		field.kaboom(false);
 	};
 
-	var blackHole_old = function(hole) {
+	var blackHole_old = function(hole) { // not used
 		var nonFree = field.getBusyMap();
 		var remains = [];
 
@@ -314,7 +316,7 @@ function Field() {
 			}
 			if (step >= 9) {
 				field.clearPoint(hole);
-				game.drop(3, true);
+				game.drop(4);
 			} else {
 				window.setTimeout(function() { animationStep(step + 1); }, 500);
 			}
@@ -322,48 +324,7 @@ function Field() {
 		animationStep(0);
 	};
 
-/*	var blackHole = function(hole) {
-		if ((hole.x != 0 && hole.x != 8) || (hole.x != 0 && hole.x != 8)) 
-			return blackHole_old(hole);
-
-		var getPoints = function() {
-			var points = [];
-			for (var y in grid)
-				for (var x in grid[y])
-					if (!grid[y][x].isFree) points.push({x: parseInt(x), y: parseInt(y)});
-			return points;
-		};
-
-		var moveToHole = function(step) {
-			if (step >= 9) {
-				field.clearPoint(hole);
-				game.drop(3, true);
-				return;
-			}
-			var points = getPoints();
-			for (var i in points) {
-				var point = points[i];
-				var color = field.getPoint(point).color;
-				var route = [];
-				route.push(point);
-				point_new = {x: point.x, y: point.y};
-				if (point.x < hole.x) point_new.x++;
-				if (point.x > hole.x) point_new.x--;
-				if (point.y < hole.y) point_new.y++;
-				if (point.y > hole.y) point_new.y--;
-				route.push(point_new);
-				animateRoute(route, color, function() {
-					field.clearPoint(point);
-					field.setPoint(point_new, color);
-					field.setPoint(hole, game.colors.special.black_hole);
-				});
-			}
-			window.setTimeout(function() { moveToHole(step+1); }, 1000);		
-		};
-		moveToHole(0);
-	}*/
-
-	var storm = function(storm) {
+	var storm = function(storm) { // Not used
 		var stormCell = field.getPoint(storm).cell;
 		stormCell.css('background', stormCell.color);
 		stormCell.html("");
@@ -694,7 +655,7 @@ function HallOfFame(name) {
 		
 		var lis = "";
 		for (var i in sortedFameData) {
-			if (i > 15) break;
+			if (i >= 15) break;
 			var name = sortedFameData[i].name;
 			if (i == 0) name = "<span style='color: #ffcc00;'>" + name + "</span>"; 
 			lis += "<li>" + name + " - " + sortedFameData[i].score + "</li>";
@@ -707,6 +668,10 @@ function HallOfFame(name) {
 		$("#king_name").html(king.name);
 		$("#king_score").html(king.score);
 	};
+	this.setName = function(name) {
+		fameElement.name = name;
+		this.setScore(fameElement.score);
+	};
 	this.setKing();
 }
 var hallOfFame = undefined;
@@ -717,6 +682,8 @@ function Game() {
 	var current_game = this;
 	field.create();
 	field.draw();
+
+	var DROP_COUNT = 4;
 
 	this.colors = {
 		purple: "purple",
@@ -818,6 +785,7 @@ function Game() {
 				cancel: {text: "Don't start"},
 			}); 
 		}, 1000);
+		current_game.isGameOver = true;
 	};
 	this.cantMove = function() {
 		message("No way");
@@ -825,7 +793,7 @@ function Game() {
 
 	this.endTurn = function() {
 		if (field.check() > 0) field.kaboom(true);
-		else this.drop(3);
+		else this.drop(DROP_COUNT);
 	};
 
 	this.drop = function(number, isInitial) {
@@ -836,14 +804,14 @@ function Game() {
 			drop = field.createNext;
 		}
 		var doDrop = function() {
+			if (field.getFreeMap().length <= 1) {
+				current_game.gameOver();
+				return;
+			}
 			for (var i = 0; i < number; i++) {
 				var color = createColor();
-				if (!drop(color)) {
-					this.gameOver();
-					return;
-				}
+				if (!drop(color)) return;
 			}
-			if (!field.getFreeMap().length) this.gameOver();
 		};
 		doDrop();
 		
@@ -855,7 +823,7 @@ function Game() {
 	};
 	$("#field").removeClass("gameover");
 	$(window).trigger('resize');
-	this.drop(5, true);
+	this.drop(6, true);
 }
 
 var game = {};
@@ -961,18 +929,30 @@ $(function() {
 	$("#button-info").click(showInfo);
 	drawKrown(document.getElementById("drawKrown"));
 	$(window).on('resize', resizeCells).trigger('resize');
-	window.setTimeout(start, 500);
+	window.setTimeout(begin, 500);
+	$("#username").click(function() {
+		message("Say your name: ", { 
+			ok: { callback: function() {
+				var name = messagebox.getValue();
+				$("#username").html(name);
+				hallOfFame.setName(name);
+			}}, 
+			input: { value: $("#username").html() } 
+		});	
+	});
 });
 
-function start() { 
+function begin() { 
 	message("Say your name: ", { 
 		ok: { callback: function() {
-		 $("#username").html(messagebox.getValue());
-		 game = new Game();
+			$("#username").html(messagebox.getValue());
+			start();
 		}}, 
 		input: { value: $("#username").html() } 
 	});
 }
+
+function start() { game = new Game(); }
 
 function showInfo() {
 	message($("#info").html(), { ok: true, width: "80%", height: "90%", overflow: "scroll" });
@@ -981,5 +961,3 @@ function showInfo() {
 function showHallOfFame() {
 	message(hallOfFame.getHtml());
 }
-
-
